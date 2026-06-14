@@ -742,6 +742,17 @@
             box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4);
         }
 
+        .resume-tip {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #92400e;
+            text-align: left;
+        }
+
         @media (max-width: 768px) {
             .taskbar {
                 overflow-x: auto;
@@ -789,12 +800,12 @@
                     <p>Building solutions that connect hardware and software. Passionate about embedded systems, IoT, AR/VR, and creating practical technology that makes a difference in the real world.</p>
                     <div class="hero-buttons">
                         <a href="#contact" class="btn-primary"><i class="fas fa-paper-plane"></i> Hire Me</a>
-                        <a href="javascript:void(0);" id="downloadResumeBtn" class="btn-outline"><i class="fas fa-download"></i> Resume Download</a>
+                        <button id="downloadResumeBtn" class="btn-outline" style="border:2px solid #14b8a6; background:transparent; cursor:pointer;"><i class="fas fa-download"></i> Resume Download</button>
                     </div>
                 </div>
                 <div class="hero-image">
                     <div class="hero-img-circle">
-                        <img src="image.png" alt="Madhu Sudhan" onerror="this.src='https://via.placeholder.com/160?text=Profile';">
+                        <img src="image.png" alt="Madhu Sudhan" onerror="this.src='https://via.placeholder.com/160?text=Photo';">
                     </div>
                 </div>
             </div>
@@ -971,41 +982,46 @@
         
         if (typedTextElement) setTimeout(typeEffect, 500);
         
-        // RESUME DOWNLOAD FIXED - works with existing file in same folder, shows helpful message if missing
+        // RESUME DOWNLOAD - Fixed for MadhuSudhan-Resume.pdf
         const downloadBtn = document.getElementById('downloadResumeBtn');
+        let statusDiv = document.getElementById('beautifulFormStatus');
+        
+        function showResumeStatus(msg, isError = false) {
+            if (statusDiv) {
+                statusDiv.innerHTML = `<div style="padding:0.7rem;border-radius:12px;background:${isError ? '#fee2e2' : '#e6f7f5'};color:${isError ? '#991b1b' : '#0f5c54'};">${msg}</div>`;
+                setTimeout(() => { if (statusDiv) statusDiv.innerHTML = ''; }, 5000);
+            } else {
+                alert(msg);
+            }
+        }
+        
         if (downloadBtn) {
             downloadBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Try multiple possible filenames to maximize success
-                const possibleNames = ['MadhuSudhan-Resume.pdf', 'Madhu_Sudhan_Resume.pdf', 'MadhuSudhan.pdf', 'resume.pdf'];
-                let downloadAttempted = false;
+                // Try to download the exact file from the same folder
+                const resumeFile = 'MadhuSudhan-Resume.pdf';
+                const link = document.createElement('a');
+                link.href = resumeFile;
+                link.download = resumeFile;
+                link.style.display = 'none';
+                document.body.appendChild(link);
                 
-                for (let fileName of possibleNames) {
-                    const link = document.createElement('a');
-                    link.href = fileName;
-                    link.download = fileName;
-                    // We cannot check existence directly, but we try download with a small timeout to detect error concept
-                    document.body.appendChild(link);
-                    // Use a click and then cleanup
-                    link.click();
-                    setTimeout(() => document.body.removeChild(link), 100);
-                    downloadAttempted = true;
-                    // Show quick status
-                    const statusDiv = document.getElementById('beautifulFormStatus');
-                    if (statusDiv) {
-                        statusDiv.innerHTML = `<div style="padding:0.5rem;border-radius:12px;background:#e6f7f5;color:#0f5c54;">Attempting download: ${fileName}</div>`;
-                        setTimeout(() => { if(statusDiv) statusDiv.innerHTML = ''; }, 2000);
-                    }
-                    break; // only attempt first default, but we show guidance
-                }
-                // Extra guidance: if actual file missing, user will get browser error but we also show tip
-                setTimeout(() => {
-                    const msgDiv = document.getElementById('beautifulFormStatus');
-                    if (msgDiv && !msgDiv.innerText.includes('success')) {
-                        msgDiv.innerHTML = `<div style="padding:0.5rem;border-radius:12px;background:#fff3e0;color:#b45309;">📄 Resume not found? Ensure "MadhuSudhan-Resume.pdf" is in same folder as this HTML file. You can rename your file accordingly.</div>`;
-                        setTimeout(() => { if(msgDiv) msgDiv.innerHTML = ''; }, 5000);
-                    }
-                }, 800);
+                // Attempt download with error handling
+                fetch(resumeFile, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            link.click();
+                            showResumeStatus('✅ Resume download started successfully!', false);
+                        } else {
+                            throw new Error('File not found');
+                        }
+                    })
+                    .catch(error => {
+                        showResumeStatus('❌ Resume file not found! Please place "MadhuSudhan-Resume.pdf" in the same folder as this webpage.', true);
+                    })
+                    .finally(() => {
+                        document.body.removeChild(link);
+                    });
             });
         }
         
@@ -1045,7 +1061,6 @@
         
         // Contact form handling
         const form = document.getElementById('beautifulContactForm');
-        const statusDiv = document.getElementById('beautifulFormStatus');
         
         function showStatus(msg, isErr = false) {
             if (statusDiv) {
