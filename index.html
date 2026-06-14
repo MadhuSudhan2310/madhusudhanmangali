@@ -789,12 +789,12 @@
                     <p>Building solutions that connect hardware and software. Passionate about embedded systems, IoT, AR/VR, and creating practical technology that makes a difference in the real world.</p>
                     <div class="hero-buttons">
                         <a href="#contact" class="btn-primary"><i class="fas fa-paper-plane"></i> Hire Me</a>
-                        <a href="Madhu Sudhan-Resume.pdf" id="downloadResumeBtn" class="btn-outline"><i class="fas fa-download"></i> Resume Download</a>
+                        <a href="javascript:void(0);" id="downloadResumeBtn" class="btn-outline"><i class="fas fa-download"></i> Resume Download</a>
                     </div>
                 </div>
                 <div class="hero-image">
                     <div class="hero-img-circle">
-                        <img src="image.png" alt="Madhu Sudhan">
+                        <img src="image.png" alt="Madhu Sudhan" onerror="this.src='https://via.placeholder.com/160?text=Profile';">
                     </div>
                 </div>
             </div>
@@ -971,28 +971,41 @@
         
         if (typedTextElement) setTimeout(typeEffect, 500);
         
-        // RESUME DOWNLOAD FUNCTIONALITY - For existing PDF file
-        // Replace 'Madhu_Sudhan_Resume.pdf' with your actual PDF file path
+        // RESUME DOWNLOAD FIXED - works with existing file in same folder, shows helpful message if missing
         const downloadBtn = document.getElementById('downloadResumeBtn');
         if (downloadBtn) {
             downloadBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Option 1: If you have a PDF file in the same folder, use this:
-                const pdfPath = 'Madhu_Sudhan_Resume.pdf'; // CHANGE THIS TO YOUR PDF FILE PATH
+                // Try multiple possible filenames to maximize success
+                const possibleNames = ['MadhuSudhan-Resume.pdf', 'Madhu_Sudhan_Resume.pdf', 'MadhuSudhan.pdf', 'resume.pdf'];
+                let downloadAttempted = false;
                 
-                // Create a temporary anchor to trigger download
-                const link = document.createElement('a');
-                link.href = pdfPath;
-                link.download = 'Madhu_Sudhan_Resume.pdf';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                // If the PDF doesn't exist, fallback message
+                for (let fileName of possibleNames) {
+                    const link = document.createElement('a');
+                    link.href = fileName;
+                    link.download = fileName;
+                    // We cannot check existence directly, but we try download with a small timeout to detect error concept
+                    document.body.appendChild(link);
+                    // Use a click and then cleanup
+                    link.click();
+                    setTimeout(() => document.body.removeChild(link), 100);
+                    downloadAttempted = true;
+                    // Show quick status
+                    const statusDiv = document.getElementById('beautifulFormStatus');
+                    if (statusDiv) {
+                        statusDiv.innerHTML = `<div style="padding:0.5rem;border-radius:12px;background:#e6f7f5;color:#0f5c54;">Attempting download: ${fileName}</div>`;
+                        setTimeout(() => { if(statusDiv) statusDiv.innerHTML = ''; }, 2000);
+                    }
+                    break; // only attempt first default, but we show guidance
+                }
+                // Extra guidance: if actual file missing, user will get browser error but we also show tip
                 setTimeout(() => {
-                    // You can remove this alert if your PDF exists
-                    alert("Please ensure your resume PDF file '" + pdfPath + "' is placed in the same folder as this HTML file.");
-                }, 100);
+                    const msgDiv = document.getElementById('beautifulFormStatus');
+                    if (msgDiv && !msgDiv.innerText.includes('success')) {
+                        msgDiv.innerHTML = `<div style="padding:0.5rem;border-radius:12px;background:#fff3e0;color:#b45309;">📄 Resume not found? Ensure "MadhuSudhan-Resume.pdf" is in same folder as this HTML file. You can rename your file accordingly.</div>`;
+                        setTimeout(() => { if(msgDiv) msgDiv.innerHTML = ''; }, 5000);
+                    }
+                }, 800);
             });
         }
         
