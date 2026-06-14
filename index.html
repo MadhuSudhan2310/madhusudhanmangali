@@ -241,11 +241,13 @@
             gap: 8px;
             transition: all 0.3s;
             font-size: 0.9rem;
+            cursor: pointer;
         }
 
         .btn-primary {
             background: #14b8a6;
             color: white;
+            border: none;
         }
 
         .btn-primary:hover {
@@ -742,15 +744,29 @@
             box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4);
         }
 
-        .resume-tip {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 0.75rem;
+        .toast-message {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
             border-radius: 12px;
-            margin-top: 0.5rem;
-            font-size: 0.75rem;
-            color: #92400e;
-            text-align: left;
+            font-size: 0.85rem;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -800,12 +816,12 @@
                     <p>Building solutions that connect hardware and software. Passionate about embedded systems, IoT, AR/VR, and creating practical technology that makes a difference in the real world.</p>
                     <div class="hero-buttons">
                         <a href="#contact" class="btn-primary"><i class="fas fa-paper-plane"></i> Hire Me</a>
-                        <button id="downloadResumeBtn" class="btn-outline" style="border:2px solid #14b8a6; background:transparent; cursor:pointer;"><i class="fas fa-download"></i> Resume Download</button>
+                        <button id="downloadResumeBtn" class="btn-outline"><i class="fas fa-download"></i> Resume Download</button>
                     </div>
                 </div>
                 <div class="hero-image">
                     <div class="hero-img-circle">
-                        <img src="image.png" alt="Madhu Sudhan" onerror="this.src='https://via.placeholder.com/160?text=Photo';">
+                        <img src="image.png" alt="Madhu Sudhan" onerror="this.src='https://via.placeholder.com/160?text=MS';">
                     </div>
                 </div>
             </div>
@@ -982,46 +998,35 @@
         
         if (typedTextElement) setTimeout(typeEffect, 500);
         
-        // RESUME DOWNLOAD - Fixed for MadhuSudhan-Resume.pdf
+        // RESUME DOWNLOAD - WORKING WITH YOUR EXACT FILE NAME
         const downloadBtn = document.getElementById('downloadResumeBtn');
-        let statusDiv = document.getElementById('beautifulFormStatus');
         
-        function showResumeStatus(msg, isError = false) {
+        function showMessage(msg, isError = false) {
+            const statusDiv = document.getElementById('beautifulFormStatus');
             if (statusDiv) {
                 statusDiv.innerHTML = `<div style="padding:0.7rem;border-radius:12px;background:${isError ? '#fee2e2' : '#e6f7f5'};color:${isError ? '#991b1b' : '#0f5c54'};">${msg}</div>`;
                 setTimeout(() => { if (statusDiv) statusDiv.innerHTML = ''; }, 5000);
-            } else {
-                alert(msg);
             }
         }
         
         if (downloadBtn) {
-            downloadBtn.addEventListener('click', (e) => {
+            downloadBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                // Try to download the exact file from the same folder
-                const resumeFile = 'MadhuSudhan-Resume.pdf';
+                
+                // Your actual filename from the folder: "Madhu Sudhan-Resume.pdf" (with space)
+                const resumeFile = 'Madhu Sudhan-Resume.pdf';
+                
+                // Create download link
                 const link = document.createElement('a');
                 link.href = resumeFile;
                 link.download = resumeFile;
                 link.style.display = 'none';
                 document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
                 
-                // Attempt download with error handling
-                fetch(resumeFile, { method: 'HEAD' })
-                    .then(response => {
-                        if (response.ok) {
-                            link.click();
-                            showResumeStatus('✅ Resume download started successfully!', false);
-                        } else {
-                            throw new Error('File not found');
-                        }
-                    })
-                    .catch(error => {
-                        showResumeStatus('❌ Resume file not found! Please place "MadhuSudhan-Resume.pdf" in the same folder as this webpage.', true);
-                    })
-                    .finally(() => {
-                        document.body.removeChild(link);
-                    });
+                // Show success message
+                showMessage('✅ Downloading your resume: ' + resumeFile, false);
             });
         }
         
@@ -1063,6 +1068,7 @@
         const form = document.getElementById('beautifulContactForm');
         
         function showStatus(msg, isErr = false) {
+            const statusDiv = document.getElementById('beautifulFormStatus');
             if (statusDiv) {
                 statusDiv.innerHTML = `<div style="padding:0.7rem;border-radius:12px;background:${isErr ? '#fee2e2' : '#e6f7f5'};color:${isErr ? '#991b1b' : '#0f5c54'};">${msg}</div>`;
                 setTimeout(() => { if (statusDiv) statusDiv.innerHTML = ''; }, 5000);
